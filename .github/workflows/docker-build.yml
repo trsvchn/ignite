@@ -82,54 +82,118 @@ jobs:
 #           docker system prune -a -f
 #           bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
 
-#   build-main:
-#     name: Build all PyTorch-Ignite images
-#     needs: setup
-#     if: contains(needs.setup.outputs.modified, 'main/')
-#     runs-on: ${{ matrix.os }}
-#     strategy:
-#       matrix:
-#         os: [ubuntu-latest]
-#         type: [main]
-#         flavour: [base, vision, nlp]
-#     steps:
-#       - uses: actions/checkout@v2
-#       - uses: actions/setup-python@v2
-#         with:
-#           python-version: 3.7
-#       - name: "Build ${{ matrix.type }} ${{ matrix.flavour }}"
-#         run: |
-#           pip install PyYAML
-#           export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
-#           cd docker
-#           docker system prune -a -f
-#           bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
+  build-main-base:
+    name: Build base PyTorch-Ignite image
+    needs: setup
+    if: contains(needs.setup.outputs.modified, 'main/')
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        type: [main]
+        flavour: [base]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: "Build ${{ matrix.type }} ${{ matrix.flavour }}"
+        run: |
+          pip install PyYAML
+          export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
+          cd docker
+          docker system prune -a -f
+          bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
+      - name: Upload docker image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: "${{ matrix.flavour }}-base"
+          path: "pytorchignite/${{ matrix.flavour }}-base.tar"
 
-#   build-main-apex:
-#     name: Build all PyTorch-Ignite images with Apex
-#     needs: setup
-#     if: contains(needs.setup.outputs.modified, 'main/')
-#     runs-on: ${{ matrix.os }}
-#     strategy:
-#       matrix:
-#         os: [ubuntu-latest]
-#         type: [main]
-#         flavour: [apex, apex-vision, apex-nlp]
-#     steps:
-#       - uses: actions/checkout@v2
-#       - uses: actions/setup-python@v2
-#         with:
-#           python-version: 3.7
-#       - name: "Build ${{ matrix.type }} ${{ matrix.flavour }}"
-#         run: |
-#           pip install PyYAML
-#           export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
-#           cd docker
-#           docker system prune -a -f
-#           bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
+  build-main:
+    name: Build all PyTorch-Ignite images
+    needs: build-main-base
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        type: [main]
+        flavour: [vision, nlp]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: Download apex base image
+        uses: actions/download-artifact@v2
+        with:
+          name: "base-base"
+      - name: "Build ${{ matrix.type }} ${{ matrix.flavour }}"
+        run: |
+          pip install PyYAML
+          export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
+          cd docker
+          docker system prune -a -f
+          docker load -i pytorchignite-base-base.tar
+          bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
+
+  build-main-apex-base:
+    name: Build base PyTorch-Ignite image with Apex
+    needs: setup
+    if: contains(needs.setup.outputs.modified, 'main/')
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        type: [main]
+        flavour: [apex]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: "Build ${{ matrix.type }} ${{ matrix.flavour }}"
+        run: |
+          pip install PyYAML
+          export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
+          cd docker
+          docker system prune -a -f
+          bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
+      - name: Upload docker image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: "${{ matrix.flavour }}-base"
+          path: "pytorchignite/${{ matrix.flavour }}-base.tar"
+
+  build-main-apex:
+    name: Build all PyTorch-Ignite images with Apex
+    needs: build-main-apex-base
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        type: [main]
+        flavour: [apex-vision, apex-nlp]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: Download apex base image
+        uses: actions/download-artifact@v2
+        with:
+          name: "apex-base"
+      - name: "Build ${{ matrix.type }} ${{ matrix.flavour }}"
+        run: |
+          pip install PyYAML
+          export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
+          cd docker
+          docker system prune -a -f
+          docker load -i pytorchignite-apex-base.tar
+          bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
 
   build-msdp-apex-base:
-    name: Build base MS DeepSpeed flavoured PyTorch-Ignite images
+    name: Build base MS DeepSpeed flavoured PyTorch-Ignite image
     needs: setup
     if: contains(needs.setup.outputs.modified, 'msdp/')
     runs-on: ${{ matrix.os }}
