@@ -148,8 +148,8 @@ jobs:
           docker load -i /tmp/pytorchignite-base.tar.gz
           bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
 
-  build-main-apex-base:
-    name: Build base PyTorch-Ignite image with Apex
+  build-main-apex:
+    name: Build all PyTorch-Ignite images with Apex
     needs: setup
     if: contains(needs.setup.outputs.modified, 'main/')
     runs-on: ${{ matrix.os }}
@@ -157,65 +157,35 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         type: [main]
-        flavour: [apex]
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: 3.7
-      - name: "Build ${{ matrix.type }} ${{ matrix.flavour }}"
-        run: |
-          pip install PyYAML
-          export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
-          cd docker
-          docker system prune -a -f
-          docker images -a
-          bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
-          docker images -a
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          docker rmi `docker images -f "before=pytorchignite/${{ matrix.flavour }}:latest" -q` | echo "Status code $?"
-          docker system prune -f
-          docker system prune --volumes -f
-          docker images -a
-          df -h --total --output=source,size,used,avail | grep -E "Filesystem|total"
-          docker save "pytorchignite/${{ matrix.flavour }}:latest" | gzip > "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar.gz"
-      - name: Upload docker image as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: "${{ matrix.flavour }}-base"
-          path: "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar.gz"
-
-  build-main-apex:
-    name: Build all PyTorch-Ignite images with Apex
-    needs: build-main-apex-base
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        type: [main]
+        base: [apex]
         flavour: [apex-vision, apex-nlp]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
           python-version: 3.7
-      - name: Download apex base image
-        uses: actions/download-artifact@v2
-        with:
-          name: apex-base
-          path: /tmp
-      - name: "Build ${{ matrix.type }} ${{ matrix.flavour }}"
+      - name: "Build ${{ matrix.type }} ${{ matrix.base }} base"
         run: |
           pip install PyYAML
           export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
           cd docker
           docker system prune -a -f
-          docker load -i /tmp/pytorchignite-apex-base.tar.gz
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          bash build.sh "${{ matrix.type }}" ${{ matrix.base }}
+      - name: "Build ${{ matrix.type }} ${{ matrix.flavour }}"
+        run: |
+          pip install PyYAML
+          export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
+          cd docker
+          docker system prune -f
+          docker system prune --volumes -f
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
 
-  build-msdp-apex-base:
-    name: Build base MS DeepSpeed flavoured PyTorch-Ignite image
+  build-msdp-apex:
+    name: Build all MS DeepSpeed flavoured PyTorch-Ignite images
     needs: setup
     if: contains(needs.setup.outputs.modified, 'msdp/')
     runs-on: ${{ matrix.os }}
@@ -223,61 +193,31 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         type: [msdp]
-        flavour: [msdp-apex]
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: 3.7
-      - name: "Build ${{ matrix.type }} ${{ matrix.flavour }}"
-        run: |
-          pip install PyYAML
-          export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
-          export MSDP_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_msdp_version']['default'])"`     
-          cd docker
-          docker system prune -a -f
-          docker images -a
-          bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
-          docker images -a
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          docker rmi `docker images -f "before=pytorchignite/${{ matrix.flavour }}:latest" -q` | echo "Status code $?"
-          docker system prune -f
-          docker system prune --volumes -f
-          docker images -a
-          df -h --total --output=source,size,used,avail | grep -E "Filesystem|total"
-          docker save "pytorchignite/${{ matrix.flavour }}:latest" | gzip > "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar.gz"
-      - name: Upload docker image as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: "${{ matrix.flavour }}-base"
-          path: "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar.gz"
-
-  build-msdp-apex:
-    name: Build all MS DeepSpeed flavoured PyTorch-Ignite images
-    needs: build-msdp-apex-base
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        type: [msdp]
+        base: [msdp-apex]
         flavour: [msdp-apex-vision, msdp-apex-nlp]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
           python-version: 3.7
-      - name: Download msdp apex base image
-        uses: actions/download-artifact@v2
-        with:
-          name: msdp-apex-base
-          path: /tmp
-      - name: "Build ${{ matrix.type }} ${{ matrix.flavour }}"
+      - name: "Build ${{ matrix.type }} ${{ matrix.base }} base"
         run: |
           pip install PyYAML
           export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
           export MSDP_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_msdp_version']['default'])"`     
           cd docker
           docker system prune -a -f
-          docker load -i /tmp/pytorchignite-msdp-apex-base.tar.gz
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          bash build.sh "${{ matrix.type }}" ${{ matrix.base }}
+      - name: "Build ${{ matrix.type }} ${{ matrix.flavour }}"
+        run: |
+          pip install PyYAML
+          export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
+          export MSDP_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_msdp_version']['default'])"`     
+          cd docker
+          docker system prune -f
+          docker system prune --volumes -f
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
