@@ -104,7 +104,9 @@ jobs:
           cd docker
           docker system prune -a -f
           bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
-          docker images -a
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          docker rmi `docker images -f "before=pytorchignite/${{ matrix.flavour }}:latest" -q` | echo "Status code $?"
           docker save "pytorchignite/${{ matrix.flavour }}:latest" | gzip > "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar.gz"
       - name: Upload docker image as artifact
         uses: actions/upload-artifact@v2
@@ -162,7 +164,9 @@ jobs:
           cd docker
           docker system prune -a -f
           bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
-          docker images -a
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          docker rmi `docker images -f "before=pytorchignite/${{ matrix.flavour }}:latest" -q` | echo "Status code $?"
           docker save "pytorchignite/${{ matrix.flavour }}:latest" | gzip > "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar.gz"
       - name: Upload docker image as artifact
         uses: actions/upload-artifact@v2
@@ -221,7 +225,9 @@ jobs:
           cd docker
           docker system prune -a -f
           bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
-          docker images -a
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          docker rmi `docker images -f "before=pytorchignite/${{ matrix.flavour }}:latest" -q` | echo "Status code $?"
           docker save "pytorchignite/${{ matrix.flavour }}:latest" | gzip > "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar.gz"
       - name: Upload docker image as artifact
         uses: actions/upload-artifact@v2
