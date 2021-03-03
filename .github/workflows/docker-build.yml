@@ -111,6 +111,7 @@ jobs:
           docker rmi `docker images -f "before=pytorchignite/${{ matrix.flavour }}:latest" -q` | echo "Status code $?"
           docker system prune -f
           docker images -a
+          df -h --total --output=source,size,used,avail | grep -E "Filesystem|total"
           docker save "pytorchignite/${{ matrix.flavour }}:latest" | gzip > "/tmp/pytorchignite-${{ matrix.flavour }}.tar.gz"
       - name: Upload docker image as artifact
         uses: actions/upload-artifact@v2
@@ -175,6 +176,7 @@ jobs:
           docker rmi `docker images -f "before=pytorchignite/${{ matrix.flavour }}:latest" -q` | echo "Status code $?"
           docker system prune -f
           docker images -a
+          df -h --total --output=source,size,used,avail | grep -E "Filesystem|total"
           docker save "pytorchignite/${{ matrix.flavour }}:latest" | gzip > "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar.gz"
       - name: Upload docker image as artifact
         uses: actions/upload-artifact@v2
@@ -240,6 +242,7 @@ jobs:
           docker rmi `docker images -f "before=pytorchignite/${{ matrix.flavour }}:latest" -q` | echo "Status code $?"
           docker system prune -f
           docker images -a
+          df -h --total --output=source,size,used,avail | grep -E "Filesystem|total"
           docker save "pytorchignite/${{ matrix.flavour }}:latest" | gzip > "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar.gz"
       - name: Upload docker image as artifact
         uses: actions/upload-artifact@v2
