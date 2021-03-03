@@ -136,7 +136,7 @@ jobs:
           export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
           cd docker
           docker system prune -a -f
-          docker load -i pytorchignite-base-base.tar
+          docker load -i /tmp/pytorchignite-base-base.tar
           bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
 
   build-main-apex-base:
@@ -193,7 +193,7 @@ jobs:
           export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
           cd docker
           docker system prune -a -f
-          docker load -i pytorchignite-apex-base.tar
+          docker load -i /tmp/pytorchignite-apex-base.tar
           bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
 
   build-msdp-apex-base:
@@ -252,5 +252,5 @@ jobs:
           export MSDP_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_msdp_version']['default'])"`     
           cd docker
           docker system prune -a -f
-          docker load -i pytorchignite-msdp-apex-base.tar
+          docker load -i /tmp/pytorchignite-msdp-apex-base.tar
           bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
