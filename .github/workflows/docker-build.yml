@@ -110,6 +110,7 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           docker rmi `docker images -f "before=pytorchignite/${{ matrix.flavour }}:latest" -q` | echo "Status code $?"
           docker system prune -f
+          docker system prune --volumes -f
           docker images -a
           df -h --total --output=source,size,used,avail | grep -E "Filesystem|total"
           docker save "pytorchignite/${{ matrix.flavour }}:latest" | gzip > "/tmp/pytorchignite-${{ matrix.flavour }}.tar.gz"
@@ -175,6 +176,7 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           docker rmi `docker images -f "before=pytorchignite/${{ matrix.flavour }}:latest" -q` | echo "Status code $?"
           docker system prune -f
+          docker system prune --volumes -f
           docker images -a
           df -h --total --output=source,size,used,avail | grep -E "Filesystem|total"
           docker save "pytorchignite/${{ matrix.flavour }}:latest" | gzip > "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar.gz"
@@ -241,6 +243,7 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           docker rmi `docker images -f "before=pytorchignite/${{ matrix.flavour }}:latest" -q` | echo "Status code $?"
           docker system prune -f
+          docker system prune --volumes -f
           docker images -a
           df -h --total --output=source,size,used,avail | grep -E "Filesystem|total"
           docker save "pytorchignite/${{ matrix.flavour }}:latest" | gzip > "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar.gz"
