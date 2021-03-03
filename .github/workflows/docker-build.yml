@@ -104,12 +104,12 @@ jobs:
           cd docker
           docker system prune -a -f
           bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
-          docker save -o "pytorchignite-${{ matrix.flavour }}-base.tar" "pytorchignite/${{ matrix.flavour }}:latest"
+          docker save -o "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar" "pytorchignite/${{ matrix.flavour }}:latest"
       - name: Upload docker image as artifact
         uses: actions/upload-artifact@v2
         with:
           name: "${{ matrix.flavour }}-base"
-          path: "pytorchignite-${{ matrix.flavour }}-base.tar"
+          path: "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar"
 
   build-main:
     name: Build all PyTorch-Ignite images
@@ -160,12 +160,12 @@ jobs:
           cd docker
           docker system prune -a -f
           bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
-          docker save -o "pytorchignite-${{ matrix.flavour }}-base.tar" "pytorchignite/${{ matrix.flavour }}:latest"
+          docker save -o "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar" "pytorchignite/${{ matrix.flavour }}:latest"
       - name: Upload docker image as artifact
         uses: actions/upload-artifact@v2
         with:
           name: "${{ matrix.flavour }}-base"
-          path: "pytorchignite-${{ matrix.flavour }}-base.tar"
+          path: "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar"
 
   build-main-apex:
     name: Build all PyTorch-Ignite images with Apex
@@ -217,12 +217,12 @@ jobs:
           cd docker
           docker system prune -a -f
           bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
-          docker save -o "pytorchignite-${{ matrix.flavour }}-base.tar" "pytorchignite/${{ matrix.flavour }}:latest"
+          docker save -o "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar" "pytorchignite/${{ matrix.flavour }}:latest"
       - name: Upload docker image as artifact
         uses: actions/upload-artifact@v2
         with:
           name: "${{ matrix.flavour }}-base"
-          path: "pytorchignite-${{ matrix.flavour }}-base.tar"
+          path: "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar"
 
   build-msdp-apex:
     name: Build all MS DeepSpeed flavoured PyTorch-Ignite images
