@@ -103,16 +103,19 @@ jobs:
           export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
           cd docker
           docker system prune -a -f
+          docker images -a
           bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
+          docker images -a
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           docker rmi `docker images -f "before=pytorchignite/${{ matrix.flavour }}:latest" -q` | echo "Status code $?"
-          docker save "pytorchignite/${{ matrix.flavour }}:latest" | gzip > "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar.gz"
+          docker images -a
+          docker save "pytorchignite/${{ matrix.flavour }}:latest" | gzip > "/tmp/pytorchignite-${{ matrix.flavour }}.tar.gz"
       - name: Upload docker image as artifact
         uses: actions/upload-artifact@v2
         with:
-          name: "${{ matrix.flavour }}-base"
-          path: "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar.gz"
+          name: "${{ matrix.flavour }}"
+          path: "/tmp/pytorchignite-${{ matrix.flavour }}.tar.gz"
 
   build-main:
     name: Build all PyTorch-Ignite images
@@ -131,7 +134,7 @@ jobs:
       - name: Download main base image
         uses: actions/download-artifact@v2
         with:
-          name: base-base
+          name: base
           path: /tmp
       - name: "Build ${{ matrix.type }} ${{ matrix.flavour }}"
         run: |
@@ -139,7 +142,7 @@ jobs:
           export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
           cd docker
           docker system prune -a -f
-          docker load -i /tmp/pytorchignite-base-base.tar.gz
+          docker load -i /tmp/pytorchignite-base.tar.gz
           bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
 
   build-main-apex-base:
@@ -163,10 +166,13 @@ jobs:
           export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
           cd docker
           docker system prune -a -f
+          docker images -a
           bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
+          docker images -a
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           docker rmi `docker images -f "before=pytorchignite/${{ matrix.flavour }}:latest" -q` | echo "Status code $?"
+          docker images -a
           docker save "pytorchignite/${{ matrix.flavour }}:latest" | gzip > "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar.gz"
       - name: Upload docker image as artifact
         uses: actions/upload-artifact@v2
@@ -224,10 +230,13 @@ jobs:
           export MSDP_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_msdp_version']['default'])"`     
           cd docker
           docker system prune -a -f
+          docker images -a
           bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
+          docker images -a
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           docker rmi `docker images -f "before=pytorchignite/${{ matrix.flavour }}:latest" -q` | echo "Status code $?"
+          docker images -a
           docker save "pytorchignite/${{ matrix.flavour }}:latest" | gzip > "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar.gz"
       - name: Upload docker image as artifact
         uses: actions/upload-artifact@v2
