@@ -104,6 +104,7 @@ jobs:
           cd docker
           docker system prune -a -f
           bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
+          docker images -a
           docker save "pytorchignite/${{ matrix.flavour }}:latest" | gzip > "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar.gz"
       - name: Upload docker image as artifact
         uses: actions/upload-artifact@v2
@@ -161,6 +162,7 @@ jobs:
           cd docker
           docker system prune -a -f
           bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
+          docker images -a
           docker save "pytorchignite/${{ matrix.flavour }}:latest" | gzip > "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar.gz"
       - name: Upload docker image as artifact
         uses: actions/upload-artifact@v2
@@ -219,6 +221,7 @@ jobs:
           cd docker
           docker system prune -a -f
           bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
+          docker images -a
           docker save "pytorchignite/${{ matrix.flavour }}:latest" | gzip > "/tmp/pytorchignite-${{ matrix.flavour }}-base.tar.gz"
       - name: Upload docker image as artifact
         uses: actions/upload-artifact@v2
