@@ -128,7 +128,8 @@ jobs:
       - name: Download apex base image
         uses: actions/download-artifact@v2
         with:
-          name: "base-base"
+          name: base-base
+          path: /tmp
       - name: "Build ${{ matrix.type }} ${{ matrix.flavour }}"
         run: |
           pip install PyYAML
@@ -184,7 +185,8 @@ jobs:
       - name: Download apex base image
         uses: actions/download-artifact@v2
         with:
-          name: "apex-base"
+          name: apex-base
+          path: /tmp
       - name: "Build ${{ matrix.type }} ${{ matrix.flavour }}"
         run: |
           pip install PyYAML
@@ -241,7 +243,8 @@ jobs:
       - name: Download msdp-apex base image
         uses: actions/download-artifact@v2
         with:
-          name: "masdp-apex-base"
+          name: masdp-apex-base
+          path: /tmp
       - name: "Build ${{ matrix.type }} ${{ matrix.flavour }}"
         run: |
           pip install PyYAML
