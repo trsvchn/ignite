@@ -44,7 +44,6 @@ jobs:
         os: [ubuntu-latest]
         type: [hvd]
         base: [hvd-base]
-        flavour: [hvd-vision, hvd-nlp]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -60,16 +59,22 @@ jobs:
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           bash build.sh "${{ matrix.type }}" ${{ matrix.base }}
-      - name: "Build ${{ matrix.type }} ${{ matrix.flavour }}"
+      - name: "Build ${{ matrix.type }} hvd-vision"
         run: |
           export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
           export HVD_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_hvd_version']['default'])"`
           cd docker
-          docker system prune -f
-          docker system prune --volumes -f
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
+          bash build.sh "${{ matrix.type }}" hvd-vision
+      - name: "Build ${{ matrix.type }} hvd-nlp"
+        run: |
+          export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
+          export HVD_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_hvd_version']['default'])"`
+          cd docker
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          bash build.sh "${{ matrix.type }}" hvd-nlp
 
   build-hvd-apex:
     name: Build all Horovod + Apex flavoured PyTorch-Ignite images
@@ -81,7 +86,6 @@ jobs:
         os: [ubuntu-latest]
         type: [hvd]
         base: [hvd-apex]
-        flavour: [hvd-apex-vision, hvd-apex-nlp]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -97,16 +101,22 @@ jobs:
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           bash build.sh "${{ matrix.type }}" ${{ matrix.base }}
-      - name: "Build ${{ matrix.type }} ${{ matrix.flavour }}"
+      - name: "Build ${{ matrix.type }} hvd-apex-vision"
         run: |
           export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
           export HVD_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_hvd_version']['default'])"`
           cd docker
-          docker system prune -f
-          docker system prune --volumes -f
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
+          bash build.sh "${{ matrix.type }}" hvd-apex-vision
+      - name: "Build ${{ matrix.type }} hvd-apex-nlp"
+        run: |
+          export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
+          export HVD_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_hvd_version']['default'])"`
+          cd docker
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          bash build.sh "${{ matrix.type }}" hvd-apex-nlp
 
   build-main:
     name: Build all PyTorch-Ignite images
@@ -118,7 +128,6 @@ jobs:
         os: [ubuntu-latest]
         type: [main]
         base: [base]
-        flavour: [vision, nlp]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -133,15 +142,20 @@ jobs:
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           bash build.sh "${{ matrix.type }}" ${{ matrix.base }}
-      - name: "Build ${{ matrix.type }} ${{ matrix.flavour }}"
+      - name: "Build ${{ matrix.type }} vision"
         run: |
           export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
           cd docker
-          docker system prune -f
-          docker system prune --volumes -f
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
+          bash build.sh "${{ matrix.type }}" vision
+      - name: "Build ${{ matrix.type }} nlp"
+        run: |
+          export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
+          cd docker
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          bash build.sh "${{ matrix.type }}" nlp
 
   build-main-apex:
     name: Build all PyTorch-Ignite images with Apex
@@ -153,7 +167,6 @@ jobs:
         os: [ubuntu-latest]
         type: [main]
         base: [apex]
-        flavour: [apex-vision, apex-nlp]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -168,15 +181,20 @@ jobs:
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           bash build.sh "${{ matrix.type }}" ${{ matrix.base }}
-      - name: "Build ${{ matrix.type }} ${{ matrix.flavour }}"
+      - name: "Build ${{ matrix.type }} apex-vision"
         run: |
           export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
           cd docker
-          docker system prune -f
-          docker system prune --volumes -f
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
+          bash build.sh "${{ matrix.type }}" apex-vision
+      - name: "Build ${{ matrix.type }} apex-nlp"
+        run: |
+          export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
+          cd docker
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          bash build.sh "${{ matrix.type }}" apex-nlp
 
   build-msdp-apex:
     name: Build all MS DeepSpeed flavoured PyTorch-Ignite images
@@ -188,7 +206,6 @@ jobs:
         os: [ubuntu-latest]
         type: [msdp]
         base: [msdp-apex]
-        flavour: [msdp-apex-vision, msdp-apex-nlp]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -204,13 +221,19 @@ jobs:
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           bash build.sh "${{ matrix.type }}" ${{ matrix.base }}
-      - name: "Build ${{ matrix.type }} ${{ matrix.flavour }}"
+      - name: "Build ${{ matrix.type }} msdp-apex-vision"
         run: |
           export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
           export MSDP_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_msdp_version']['default'])"`     
           cd docker
-          docker system prune -f
-          docker system prune --volumes -f
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          bash build.sh "${{ matrix.type }}" "${{ matrix.flavour }}"
+          bash build.sh "${{ matrix.type }}" msdp-apex-vision
+      - name: "Build ${{ matrix.type }} msdp-apex-nlp"
+        run: |
+          export PTH_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_pytorch_version']['default'])"`
+          export MSDP_VERSION=`python -c "import yaml; f=open('.circleci/config.yml'); d=yaml.safe_load(f); print(d['parameters']['build_docker_image_msdp_version']['default'])"`     
+          cd docker
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          bash build.sh "${{ matrix.type }}" msdp-apex-nlp
