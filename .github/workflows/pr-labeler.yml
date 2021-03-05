@@ -10,4 +10,5 @@ jobs:
     - uses: actions/labeler@main
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
-        configuration-path: .github/pr-labeler.yml 
+        configuration-path: .github/pr-labeler.yml
+        sync-labels: true
